@@ -60,8 +60,47 @@ function findAvg(str){
     };
 }
 
+function sortArr(str, order){
+    const charArr = str.split(',');
+    let numArr = [];
+    for(let i=0; i<charArr.length; i++){
+        numArr.push(parseFloat(charArr[i]));
+    }
+    for(let i=0; i<numArr.length; i++){
+        if(isNaN(numArr[i])){
+            return{
+                status: 400,
+                data:{
+                    error: "enter only numberss"
+                }
+            };
+        }
+    }
+    if(!(order=="asc" || order =="dec")){
+        return{
+            status: 400,
+            data:{
+                error: "enter asc or dec"
+            }
+        };
+    }
+    if(order == "asc"){
+        numArr.sort((a,b)=>(a-b));
+    }
+    if(order == "dec"){
+        numArr.sort((a,b)=>(b-a));
+    }
+    return {
+        status: 200,
+        data:{
+            sortedArray : numArr
+        }
+    };
+}
+
 module.exports = {
     findMin,
     findMax,
-    findAvg
+    findAvg, 
+    sortArr
 };

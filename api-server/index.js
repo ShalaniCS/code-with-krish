@@ -1,5 +1,5 @@
 const express = require('express');
-const {findMin, findMax, findAvg} = require('./util.js');
+const {findMin, findMax, findAvg, sortArr} = require('./util.js');
 
 
 const app = new express();
@@ -44,6 +44,11 @@ app.get('/numbers/max', (req, res)=>{
 
 app.get('/numberss/avg', (req, res)=>{
     const result = findAvg(req.query.numbers);
+    res.status(result.status).json(result.data);
+})
+
+app.get('/numberss/sort', (req, res)=>{
+    const result = sortArr(req.query.numbers, req.query.type);
     res.status(result.status).json(result.data);
 })
 
