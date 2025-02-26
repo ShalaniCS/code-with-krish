@@ -98,9 +98,26 @@ function sortArr(str, order){
     };
 }
 
+function getCount(str, element){
+    const arr = str.split(',');
+    let count = 0;
+    for(let i=0; i<arr.length; i++){
+        if(arr[i] == element){
+            count = count + 1;
+        }
+    }
+    return{
+        status: 200,
+        data:{
+            element_count: count
+        }
+    }
+}
+
 module.exports = {
     findMin,
     findMax,
     findAvg, 
-    sortArr
+    sortArr,
+    getCount
 };
