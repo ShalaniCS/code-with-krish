@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 
-@Controller('customers')
+@Controller('/customers')
 export class CustomersController {
 
     constructor(private customersService : CustomersService){}
@@ -14,6 +14,7 @@ export class CustomersController {
 
     @Get(':id')
     async getCustomerById(@Param('id') id:number){
+        console.log("customer controlller");
         return await this.customersService.customerById(id);
     }
 

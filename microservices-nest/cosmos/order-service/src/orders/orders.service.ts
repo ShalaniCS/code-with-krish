@@ -1,15 +1,20 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entity/order.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { OrderItem } from './entity/order-item.entity';
 import { createOrderDto } from './dto/create-order.dto';
 import { OrderStatus, UpdateOrderStatus } from './dto/update-order.dto';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { createOrderResponseDto, CustomerDto } from './dto/create-order-response.dto';
 
 @Injectable()
 export class OrdersService {
     
-    
+    private readonly inventoryServiceUrl = 'http://localhost:3002/inventory';
+
+    private readonly customerServiceUrl = 'http://localhost:3001/customers'
    
     constructor(
 
@@ -17,12 +22,54 @@ export class OrdersService {
         private readonly orderRepository : Repository<Order>,
 
         @InjectRepository(OrderItem)
-        private readonly orderItemRepository : Repository<OrderItem>
+        private readonly orderItemRepository : Repository<OrderItem>,
+
+        private readonly httpService : HttpService,
+
+        private createOrderResponseDto : createOrderResponseDto,
+
+        private customerDto : CustomerDto
 
     ){}
 
-    async create(createOrderDto:createOrderDto): Promise<Order>{
+    async create(createOrderDto:createOrderDto): Promise<createOrderResponseDto>{
         const {customerId, items} = createOrderDto;
+        let customerDetails2;
+        console.log(customerId);
+        console.log('111');
+
+        try{
+            console.log('inside try 1');
+            const response$ = this.httpService.get(`${this.customerServiceUrl}/${customerId}`);
+            customerDetails2 = await lastValueFrom(response$);
+            console.log(customerDetails2.data);
+            console.log('inside try 2');
+            
+        }
+        catch(error){
+            console.log(error);
+            throw new BadRequestException(
+                `error checking if a customer with id ${customerId} exists, or a customr with id ${customerId} does not exist`
+            );
+        }
+
+        for (const item of items){
+            try{
+                console.log(item)
+                const response$ = this.httpService.get(
+                    `${this.inventoryServiceUrl}/${item.productId}/validate?quantity=${item.quantity}`
+                );
+                console.log('test');
+                const response = await lastValueFrom(response$);
+                //console.log(response);
+                if(!response.data.availability){
+                    throw new BadRequestException(`product id ${item.productId} is unavailable`)
+                }
+            }
+            catch(error){
+                throw new BadRequestException(`error checking stock for product id ${item.productId} : ${error.message}`);
+            }
+        }
 
         const order = this.orderRepository.create({
             customerId,
@@ -40,11 +87,22 @@ export class OrdersService {
             })
         ))
 
+        const custId = customerDetails2.data.customerId;
+
         await this.orderItemRepository.save(orderItems);
-        return this.orderRepository.findOne({
+        const order1 = this.orderRepository.findOne({
             where: {id: savedOrder.id},
             relations: ['items']
         });
+        console.log(customerDetails2.data.name);
+        this.createOrderResponseDto.customerDetails = new CustomerDto();
+        this.createOrderResponseDto.customerId = customerId;
+        this.createOrderResponseDto.items = orderItems;
+        this.createOrderResponseDto.customerDetails.id = customerId;
+        this.createOrderResponseDto.customerDetails.name = customerDetails2.data.name;
+        this.createOrderResponseDto.customerDetails.email = customerDetails2.data.email;
+        this.createOrderResponseDto.customerDetails.address = customerDetails2.data.address;
+        return this.createOrderResponseDto;
 
     }
 

@@ -31,6 +31,7 @@ export class InventoryService {
     }
     
     async validateStock(id:number, quantity:number) : Promise<AvailabilityDto>{
+        console.log('inventory');
         const inv = await this.inventoryRepository.findOne({ where: { id } });
         if(!inv){
             throw new NotFoundException(`product with id ${id} is not found`);
