@@ -41,5 +41,16 @@ export class InventoryService {
         this.availabilityDto.availability = availability;
         return this.availabilityDto;
     }
+    
+    async reduceInventoryy(id: number, quantity: number) {
+        const inv = await this.inventoryRepository.findOne({where:{id}});
+        if(!inv){
+            throw new NotFoundException(`product with id ${id} is not found`);
+        }
+        const availableQuantity = inv.quantity;
+        const qtyAfterOrder = availableQuantity - quantity;
+        inv.quantity = qtyAfterOrder;
+        return this.inventoryRepository.save(inv);
+    }
 
 }

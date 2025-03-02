@@ -94,6 +94,17 @@ export class OrdersService {
             where: {id: savedOrder.id},
             relations: ['items']
         });
+
+        for(const item of items){
+            try{
+                console.log('reduce inventory');
+                const response$ = this.httpService.patch(`${this.inventoryServiceUrl}/${item.productId}/reduce?quantity=${item.quantity}`);
+            }
+            catch(error){
+                throw new BadRequestException(`error reducing inventory for product id ${item.productId}`);
+            }
+        }
+
         console.log(customerDetails2.data.name);
         this.createOrderResponseDto.customerDetails = new CustomerDto();
         this.createOrderResponseDto.customerId = customerId;

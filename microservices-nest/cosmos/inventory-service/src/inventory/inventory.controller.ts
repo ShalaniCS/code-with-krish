@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { createProductDto } from './dto/create-pproduct.dto';
 
@@ -28,6 +28,15 @@ export class InventoryController {
         @Query('quantity') quantity:number
     ){
         return await this.inventoryService.validateStock(id, quantity);
+    }
+
+    @Patch(':id/reduce')
+    async reduceInventory(
+        @Param('id') id: number,
+        @Query('quantity') quantity:number
+    ){
+        console.log('in controller');
+        return await this.inventoryService.reduceInventoryy(id, quantity);
     }
 
 }
