@@ -14,7 +14,7 @@ export class OrdersService {
     
     private readonly inventoryServiceUrl = 'http://localhost:3002/inventory';
 
-    private readonly customerServiceUrl = 'http://localhost:3001/customers'
+    private readonly customerServiceUrl = 'http://localhost:3001/customers';
    
     constructor(
 
