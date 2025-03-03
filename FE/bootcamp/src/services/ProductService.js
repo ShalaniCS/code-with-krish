@@ -18,6 +18,22 @@ const ProductService = {
                 data: error.response.data
             }
         }
+    },
+
+    getProducts : async ()=>{
+        try{
+            const res = await axios.get(`${productEndpoint}`);
+            return{
+                status:res.status,
+                data: res.data
+            }
+        }
+        catch(error){
+            return{
+                status: error.response.status,
+                data:error.response.data
+            }
+        }
     }
 
 }
