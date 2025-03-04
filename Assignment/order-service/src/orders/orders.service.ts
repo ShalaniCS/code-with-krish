@@ -40,7 +40,7 @@ export class OrdersService {
   }
 
   async create(createOrderDto: createOrderDto): Promise<any> {
-    const { customerId, items } = createOrderDto;
+    const { customerId, city, items } = createOrderDto;
     //--------customer
     // Validate customer exists
     let customerName = '';
@@ -70,7 +70,7 @@ export class OrdersService {
     this.producer.send({
       topic: `shalani.order.create`,
       messages:[
-        {value: JSON.stringify({customerId, customerName, items})}
+        {value: JSON.stringify({customerId, customerName, city, items})}
       ]
     });
 
@@ -166,10 +166,12 @@ export class OrdersService {
     await this.consumer.subscribe({topic:`shalani.order.inventory.update`});
     await this.consumer.run({
       eachMessage: async({message})=>{
-        const {customerId, items} = JSON.parse(message.value.toString());
+        const {customerId, city, items} = JSON.parse(message.value.toString());
+        console.log(message);
         //save to db
         const order = this.orderRepository.create({
           customerId,
+          city,
           status: OrderStatus.CONFIRMED,
         });
         const savedOrder = await this.orderRepository.save(order);
@@ -185,7 +187,7 @@ export class OrdersService {
         await this.producer.send({
           topic:'shalani.order.confirmed',
           messages: [{
-            value: JSON.stringify({customerId, items})
+            value: JSON.stringify({customerId, city, items})
           }]
         })
       }

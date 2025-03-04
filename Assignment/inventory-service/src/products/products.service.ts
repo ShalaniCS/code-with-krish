@@ -71,7 +71,7 @@ export class ProductsService {
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         console.log(`new message arrived////////////////////////////////////////////`);
-        const { customerId, customerName, items } = JSON.parse(
+        const { customerId, customerName, city, items } = JSON.parse(
           message.value.toString(),
         );
         for (const item of items) {
@@ -89,7 +89,7 @@ export class ProductsService {
         await this.producer.send({
           topic: 'shalani.order.inventory.update',
           messages: [
-            { value: JSON.stringify({ customerId, customerName, items }) },
+            { value: JSON.stringify({ customerId, customerName, city, items }) },
           ],
         });
       }

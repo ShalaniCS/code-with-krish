@@ -18,6 +18,9 @@ export class Order {
   @Column({ default: 'PENDING' })
   status: string;
 
+  @Column()
+  city: String;
+
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   items: OrderItem[];
 }
